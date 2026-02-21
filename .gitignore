@@ -1,0 +1,49 @@
+# Databases — large binary files; commit separately or via Git LFS
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Word/Office temp files
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverrideDirectory
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Logs (keep v3_run.log out of repo)
+*.log
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment
+.env
+.env.local
+
+# Archive folder — not part of deliverable repo
+archive/
