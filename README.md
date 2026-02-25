@@ -17,13 +17,20 @@ The framework applies an **exact combinatorial permutation test** to every pairw
 | Metric | Value |
 |--------|-------|
 | Competitions | 17 |
-| Competition segments (primary analysis) | 136 |
+| Events (discipline × segment) | 142 analyzed (144 in DB; 2 excluded — 4C 2022 Ice Dance had 7-judge panels) |
 | Competitor entries | 2,706 |
 | Individual judge scores | 291,604 |
-| Pairwise comparisons tested | 264,854 |
-| Significant at p ≤ 0.001 (exact test) | 1,774 |
-| Tier 2 flagged events (p ≤ 0.001 + outcome-determinative) | 46 |
-| 2026 Olympic ice dance: p-value for outlying judge | ≈ 4.6×10⁻⁵ (gold–silver reversal) |
+| Pairwise comparisons (ISU-impact method) | 271,728 |
+| OWG 2026 Ice Dance FD: J1 p-value | 0.0003 (BH q = 0.034) |
+| OWG 2026 Ice Dance FD: outcome-determinative | Yes — J1 bias +1.19 pts > 0.97 pt margin |
+| LOJO podium changes | 462 |
+| LOJO gold medal changes | 150 |
+
+> ⚠️ **Methodology Note (February 2026):** The B(j) pairwise test described in some sections
+> of this README is **deprecated** due to a known exchangeability flaw (~560× inflation).
+> The current primary method is **ISU-impact** (`calculate_isuimpact_v1.py`, `seed.sqlite`).
+> Numbers referencing "2,812 significant at p≤0.001" or "264,854 pairwise comparisons" are
+> from the deprecated method and will be updated once the corrected residual deviation test is run.
 
 ---
 
@@ -84,7 +91,7 @@ streamlit run src/streamlit_app.py
 ```
 
 The dashboard provides four views:
-1. **Competitions** — browse all 17 competitions and 144 events
+1. **Competitions** — browse all 17 competitions and 142 analyzed events
 2. **Event Analysis** — OSNR pairwise heatmap, LOJO counterfactual, significance summary for any event
 3. **Judge Profiles** — per-judge scoring patterns across events
 4. **System-Wide Stats** — Tier 1 and Tier 2 flag summary across the full dataset
@@ -147,7 +154,7 @@ For each judge in each event: remove their scores, recompute trimmed means, re-r
 | ISU Grand Prix of Figure Skating Final | 2022/23, 2023/24, 2024/25 | 24 |
 | Olympic Winter Games 2022 (Beijing) | 2022 | 8 |
 | Olympic Winter Games 2026 (Milano–Cortina) | 2026 | 16 |
-| **Total** | **2022–2026** | **144** |
+| **Total** | **2022–2026** | **142 analyzed** |
 
 Disciplines: Men's Singles, Women's Singles, Pair Skating, Ice Dance (each: Short Program + Free Skating/Dance + Rhythm Dance).
 

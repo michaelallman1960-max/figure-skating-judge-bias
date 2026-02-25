@@ -1,16 +1,32 @@
 # Publication Strategy — Judging Bias in Figure Skating
 
-*Prepared: 2026-02-21*
+*Prepared: 2026-02-21 | Updated: 2026-02-21*
+
+---
+
+## Decided Strategy (as of 2026-02-21)
+
+**Primary journal: Scientific Reports (Nature Portfolio)**
+**Parallel dissemination: Significance Magazine (RSS/ASA) — simultaneous**
+
+### Rationale
+- Significance Magazine handles the timeliness problem: OWG 2026 findings enter public circulation immediately and for free, while the full paper is under peer review. This removes the speed advantage that JQAS had as a first choice.
+- With timeliness covered by Significance, the higher Impact Factor (~4.0) and Nature portfolio branding of Scientific Reports becomes the right call for the main paper. It reaches a far broader audience — scientists, journalists, policy people — than JQAS ever would.
+- Scientific Reports evaluates on methodological soundness only (not perceived importance) — exactly right for a paper with rigorous methods applied to a niche sport.
+- Open data/code requirement at Scientific Reports is already satisfied: GitHub repo is live, database will be public via Git LFS.
+- APC ~$2,190 (accepted — independent researcher, no institutional agreement needed).
+
+### If Scientific Reports rejects → fall through sequence below (PLOS ONE, JSS, etc.)
 
 ---
 
 ## About the Paper
 
 - **Title:** "Detecting and Remedying Anomalous Judging in Competitive Figure Skating: A Permutation-Based Audit Framework"
-- **Method:** Exact combinatorial permutation test (pairwise BI(j) analysis); 17 competitions, 144 events, 2,693 entries
-- **Key findings:** 1,775 significant judge-pair relationships (p≤0.001); 153 Tier 2 outcome-determinative flags across 47 events; OWG 2026 medal impact findings
-- **Strengths for submission:** Open database + code (reproducible); OWG 2026 timeliness; exact (not Monte Carlo) p-values; LOJO counterfactual with concrete medal implications
-- **Note:** Section 3.3 of paper_draft_v2.docx still references "R = 100,000 permutations" — must be updated to exact enumeration language before any submission
+- **Method:** Exact combinatorial permutation test (pairwise BI(j) analysis); 17 competitions, 142 events, 2,706 entries
+- **Key findings:** 1,774 significant judge-pair relationships (p≤0.001); 46 Tier 2 outcome-determinative events; OWG 2026 ice dance gold-silver reversal (p=0.0003)
+- **Strengths for submission:** Open database + code on GitHub (reproducible); OWG 2026 timeliness; exact (not Monte Carlo) p-values; LOJO counterfactual with concrete medal implications
+- **Completed updates:** Section 3.3 Monte Carlo language replaced with exact enumeration ✅ | Abstract filled with real numbers ✅ | GitHub repo live ✅
 
 ---
 
@@ -102,7 +118,7 @@
 **OA APC:** ~$2,800–$3,500
 **Time to decision:** 8–16 weeks (slower)
 **Format:** LaTeX strongly preferred
-**Why:** If the exact combinatorial permutation test at this scale (191 billion total splits, 144 events, multiple comparison framework) can be framed as a genuine statistical methods contribution — with figure skating as the application — these are exceptional venues among statisticians. **Key challenge:** The permutation test itself is not novel; novelty must come from the framework design or the scale. Requires statistical collaborator or strong methods framing.
+**Why:** If the exact combinatorial permutation test at this scale (191 billion total splits, 142 events, multiple comparison framework) can be framed as a genuine statistical methods contribution — with figure skating as the application — these are exceptional venues among statisticians. **Key challenge:** The permutation test itself is not novel; novelty must come from the framework design or the scale. Requires statistical collaborator or strong methods framing.
 
 ---
 
@@ -151,39 +167,43 @@ These are NOT appropriate as primary publication venues (not rigorously peer-rev
 ## Recommended Submission Sequence
 
 ```
-Round 1:  JQAS                        [~6–10 weeks for decision]
-    ↓ if rejected
-Round 2:  Scientific Reports           [~8–12 weeks for decision]
-    ↓ if rejected
-Round 3:  PLOS ONE                     [~8–14 weeks for decision]
-    ↓ if rejected
-Round 4:  Journal of Sports Sciences   [~4–8 weeks for decision]
-    ↓ if rejected
-Round 5:  EJSS or IJPAS               [~4–8 weeks for decision]
+SIMULTANEOUS (submit together when paper is ready):
+  → Scientific Reports [~6–12 weeks for decision, APC ~$2,190]
+  → Significance Magazine [free, 1,000–2,000 words, no exclusivity conflict]
 
-PARALLEL (any time after Round 1 accepted):
-  → Significance piece (free, 1,500 words)
-  → Chance piece ($1,500–2,500, 3,000 words)
+    ↓ if Scientific Reports rejects
+Round 2:  PLOS ONE                     [~8–14 weeks for decision, APC ~$1,800–2,000]
+    ↓ if rejected
+Round 3:  Journal of Sports Sciences   [~4–8 weeks for decision, APC ~$3,600–4,200]
+    ↓ if rejected
+Round 4:  EJSS or IJPAS               [~4–8 weeks for decision]
 
-ALTERNATIVE PARALLEL TRACK (requires behavioral reframing):
-  → Judgment and Decision Making (separate, differently framed manuscript)
+AFTER MAIN PAPER ACCEPTED:
+  → Chance piece ($1,500–2,500, 3,000 words) — narrative follow-on
+
+ALTERNATIVE PARALLEL TRACK (requires behavioral reframing — separate manuscript):
+  → Judgment and Decision Making
 ```
+
+### Why Significance is not a duplicate submission conflict
+Significance is an RSS/ASA magazine, not a peer-reviewed journal. Publishing a short accessible summary there while the full paper is under peer review at Scientific Reports is standard academic practice and does not constitute duplicate submission. The Significance piece should be high-level and narrative — the journal paper carries the full methodology and data.
 
 ---
 
 ## Pre-Submission Checklist
 
-Before submitting to **any** journal, complete these updates to `paper_draft_v2.docx`:
+Before submitting to Scientific Reports, complete these updates to `paper_draft_v2.docx`:
 
-- [ ] **Section 3.3** — Replace "R = 100,000 permutations" and Monte Carlo language with exact enumeration: "all C(2k, k) distinct splits are enumerated" with specific examples (C(18,9) = 48,620; C(24,12) = 2,704,156)
-- [ ] **Section 3.3** — Update p-value formula from `(1 + #{r: B_r ≥ B_obs}) / (1 + R)` to `extreme_count / C(2k,k)` (exact fraction)
-- [ ] **Abstract** — Fill in empirical results: 144 events, 17 competitions, 2,693 entries, 1,775 significant pairs, 153 Tier 2 flags, 47 events flagged, date range (2022–2026)
-- [ ] **Bracketed placeholders** — Fill in all `[X]`, `[YEAR]` instances throughout
-- [ ] **Section 3.3** — Update "deterministic" language: "fully deterministic — no random seed, no sampling error"
-- [ ] **Section 5** — Populate with final database statistics from `figure_skating_ijs_v3.sqlite` (after v3 run completes)
+- [x] **Section 3.3** — Replace "R = 100,000 permutations" and Monte Carlo language with exact enumeration ✅
+- [x] **Section 3.3** — Update p-value formula to `extreme_count / C(2k,k)` (exact fraction) ✅
+- [x] **Abstract** — Filled with real numbers (142 events, 2,706 entries, 1,774 significant, 46 Tier 2) ✅
+- [x] **Section 3.3** — "Fully deterministic — no random seed, no sampling error" ✅
+- [x] **Data/code sharing statement** — GitHub repo live at github.com/michaelallman1960-max/figure-skating-judge-bias ✅
+- [ ] **Bracketed placeholders** — Fill in all remaining `[X]`, `[YEAR]` instances throughout
+- [ ] **Section 5** — Populate with final database statistics from `figure_skating_ijs_v3.sqlite` (after v3 run completes ~17 hrs)
 - [ ] **Sections 6–10** — Populate empirical results, case study numbers, OSNR policy, limitations, conclusion
-- [ ] **Data/code sharing statement** — Add statement citing GitHub repo (once created) for database and analysis code
 - [ ] **References** — Add Braeunig (2025a, 2025b) citations with full details if not already complete
+- [ ] **Scientific Reports formatting** — Verify section structure matches their author guidelines; confirm figure/table requirements
 
 ---
 

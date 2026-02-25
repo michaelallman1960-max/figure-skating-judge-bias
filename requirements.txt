@@ -2,3 +2,5 @@ streamlit>=1.32.0
 pandas>=2.0.0
 plotly>=5.18.0
 openpyxl>=3.1.2
+numpy>=1.26.0
+statsmodels>=0.14.0  # fdr_bh correction required in calculate_isuimpact_v1.py

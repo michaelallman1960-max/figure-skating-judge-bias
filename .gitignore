@@ -47,3 +47,12 @@ Icon?
 
 # Archive folder — not part of deliverable repo
 archive/
+
+# Generated output and large binary data — reproducible from scripts + DB
+excel_output/
+source_pdfs/
+figure_skating_seed_bundle/
+Literature Review/
+
+# macOS app bundles
+*.app/

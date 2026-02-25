@@ -1,8 +1,10 @@
 # Figure Skating Judging Bias — Database Summary
 
-**File:** `figure_skating_ijs_seed.sqlite`
+**Primary analysis database:** `figure_skating_ijs_seed.sqlite` (ISU-impact results)
+**Canonical source database:** `figure_skating_ijs_v3.sqlite` (entries, elements, LOJO)
 **Location:** Judging Bias folder
 **Prepared by:** Michael Allman
+**Updated:** February 2026 (see Two-Database Architecture section)
 
 ---
 
@@ -21,13 +23,12 @@ Data integrity was verified using a TES reconstruction check: for every entry, t
 | Category | Count |
 |---|---|
 | Competitions | 17 |
-| Events (discipline × segment combinations) | 141 |
-| Skater/pair performances (entries) | 2,637 |
-| Individual elements parsed | 22,380 |
-| Individual judge GOE scores | 200,715 |
-| Program component scores (PCS) | 7,396 |
-| Individual judge PCS marks | 66,794 |
-| Judges (unique per event) | 1,278 |
+| Events (discipline × segment combinations) | 144 |
+| Skater/pair performances (entries) | 2,706 |
+| Individual elements parsed | 23,043 |
+| Individual judge scores (GOE + PCS combined) | 291,604 |
+| Pairwise comparisons (ISU-impact, seed.sqlite) | 271,728 |
+| Judges (unique per event) | 1,278+ |
 
 ### Competitions Covered
 
@@ -75,7 +76,22 @@ The database contains the following tables:
 
 **`judge_entry_totals`** — per-judge per-entry aggregated GOE and PCS totals, used as inputs to the pairwise analysis.
 
-**`pairwise_judge_statistics`** — the core output of the bias analysis. One row per judge × pair of competitors per event, containing the BI(j) bias statistic, exact permutation test p-value (extreme_count / C(2k,k) total splits — e.g., 36 / 48,620 = 0.000740), z-score, mean deviations for each competitor, and significance flags at p ≤ 0.01, p ≤ 0.001, and Bonferroni-corrected thresholds. Contains 269,957 rows across 141 events.
+**`pairwise_judge_statistics`** — output of the deprecated B(j) pairwise test (in `v3.sqlite`). One row per judge × pair of competitors per event. Contains 269,957 rows. **⚠️ DEPRECATED** — B(j) test has an exchangeability flaw (inflation ~560×); see `methodology_diagnosis_v1.md`.
+
+**`pairwise_impact_results`** — core output of the current ISU-impact method (in `seed.sqlite`). 271,728 rows across 142 events. Contains bias_points, p_value, q_value_bh for each judge × pair × event.
+
+**`judge_team_impacts`** — per-judge per-team impact summary (in `seed.sqlite`). 24,174 rows.
+
+---
+
+## Two-Database Architecture (as of February 2026)
+
+| Database | Size | Use for |
+|----------|------|---------|
+| `figure_skating_ijs_v3.sqlite` | 104 MB | Canonical source data: entries, elements, GOE/PCS scores, LOJO results, deprecated B(j) pairwise |
+| `figure_skating_ijs_seed.sqlite` | 192 MB | ISU-impact results: pairwise_impact_results (271,728 rows), judge_team_impacts (24,174 rows), goe_factors, sources |
+
+**Use `seed.sqlite` for all new analyses.** `v3.sqlite` is retained for LOJO queries and legacy reference.
 
 ---
 
