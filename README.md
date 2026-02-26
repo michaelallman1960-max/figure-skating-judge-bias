@@ -28,8 +28,10 @@ competitions (January 2022 – February 2026), including the 2022 and 2026 Olymp
 | Pairwise comparisons (residual-label method) | 271,728 |
 | OWG 2026 Ice Dance FD: J1 p-value | 0.0003 (BH q = 0.012) |
 | OWG 2026 Ice Dance FD: outcome-determinative | Yes — J1 bias +1.19 pts > 0.97 pt margin |
-| LOJO gold medal changes | 150 |
-| LOJO podium changes | 462 |
+| LOJO: judge removals that change the winner | 150 of 1,288 (11.6%) |
+| LOJO: judge removals that change the podium | 462 of 1,288 (35.9%) |
+| LOJO: events with at least one winner-determinative judge | 27 of 144 |
+| LOJO: events with at least one podium-determinative judge | 75 of 144 |
 
 ---
 
