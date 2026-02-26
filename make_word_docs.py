@@ -28,6 +28,7 @@ FILES = [
     ("ISU_Scoring_Methodology.md", "ISU Ice Dance Scoring Methodology"),
     ("faq_v1.md",                  "FAQ — Statistical Audit of Figure Skating Judging"),
     ("Data_Dictionary.md",         "Data Dictionary — ISU Figure Skating IJS Judging Bias Study"),
+    ("database_summary.md",        "Figure Skating Judging Bias — Database Summary"),
 ]
 
 TODAY = date.today().strftime("%B %d, %Y")
