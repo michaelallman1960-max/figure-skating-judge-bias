@@ -179,7 +179,8 @@ def get_event_info(conn, event_id):
 
 # ── Helper: key findings (outcome-determinative test) ─────────────────────────
 
-def get_dynamic_key_findings(conn, event_id, event_info):
+def get_dynamic_key_findings(conn, event_id, event_info,
+                             method_version=None):
     """
     Queries DB for the gold vs silver (rank 1 vs rank 2) outcome-determinative test.
     Returns a kf dict if the test is satisfied (q<=0.05 AND |bias|>margin), else None.
@@ -199,12 +200,13 @@ def get_dynamic_key_findings(conn, event_id, event_info):
             (event_id,)
         ).fetchall()
     }
+    mv = method_version or DEFAULT_METHOD_VERSION
     # Always collect sig_judges regardless of OD result
     sig_judges = [r[0] for r in conn.execute("""
         SELECT DISTINCT judge_position FROM pairwise_impact_results
-        WHERE event_id=? AND q_value_bh <= 0.05
+        WHERE event_id=? AND method_version=? AND q_value_bh <= 0.05
         ORDER BY judge_position
-    """, (event_id,)).fetchall()]
+    """, (event_id, mv)).fetchall()]
     no_od_base = {"is_od": False, "sig_judges": sig_judges, "n_sig_judges": len(sig_judges)}
 
     if 1 not in entries or 2 not in entries:
@@ -218,10 +220,10 @@ def get_dynamic_key_findings(conn, event_id, event_info):
     od_row = conn.execute("""
         SELECT judge_position, bias_points, p_value, q_value_bh
         FROM pairwise_impact_results
-        WHERE event_id=? AND rank_a=1 AND rank_b=2 AND q_value_bh <= 0.05
+        WHERE event_id=? AND method_version=? AND rank_a=1 AND rank_b=2 AND q_value_bh <= 0.05
         ORDER BY ABS(bias_points) DESC
         LIMIT 1
-    """, (event_id,)).fetchone()
+    """, (event_id, mv)).fetchone()
 
     if not od_row:
         return no_od_base
@@ -233,8 +235,9 @@ def get_dynamic_key_findings(conn, event_id, event_info):
     # Get judge impact on rank1 and rank2
     def get_impact(judge_pos, rank):
         r = conn.execute(
-            "SELECT impact_points FROM judge_team_impacts WHERE event_id=? AND judge_position=? AND rank=?",
-            (event_id, judge_pos, rank)
+            "SELECT impact_points FROM judge_team_impacts "
+            "WHERE event_id=? AND method_version=? AND judge_position=? AND rank=?",
+            (event_id, mv, judge_pos, rank)
         ).fetchone()
         return r[0] if r else 0.0
 
@@ -244,9 +247,9 @@ def get_dynamic_key_findings(conn, event_id, event_info):
     # All judges with any significant pair
     sig_judges = [r[0] for r in conn.execute("""
         SELECT DISTINCT judge_position FROM pairwise_impact_results
-        WHERE event_id=? AND q_value_bh <= 0.05
+        WHERE event_id=? AND method_version=? AND q_value_bh <= 0.05
         ORDER BY judge_position
-    """, (event_id,)).fetchall()]
+    """, (event_id, mv)).fetchall()]
 
     # Judge display name from DB
     jname_row = conn.execute(
@@ -437,16 +440,16 @@ def build_dynamic_bias_tab_meta(event_info, kf):
                 "\u00b7 Inverse CDF: given u\u202f\u2208\u202f[0,1) and sorted_samples length n: "
                 "idx\u202f=\u202fmin(int(u\u202f\u00d7\u202fn),\u202fn\u22121); x_quant\u202f=\u202fsamples[idx]. "
                 "Preserves the judge\u2019s exact empirical distribution (integer GOE, valid PCS increments). No interpolation.\n"
-                "\u00b7 Permutation step (row-wise): for each row r, draw perm\u202f=\u202frng.permutation(9); "
-                "assign u_perm[r,j]\u202f=\u202fu_obs[r,\u202fperm[j]] (donor percentile \u2192 receiver judge); "
-                "convert back via receiver judge\u2019s inverse CDF for that category.\n"
+                "\u00b7 Permutation step (residual-label): for each pair (A,B), pool judge j\u2019s "
+                "delta values for A\u2019s rows and B\u2019s rows; randomly split into groups of "
+                "size |A| and |B|; compute B_perm\u202f=\u202fsum(group A)\u202f\u2212\u202fsum(group B).\n"
                 "\u00b7 p-value (smoothed): p\u202f=\u202f(1\u202f+\u202f#{|B(t)|\u202f\u2265\u202f|B_obs|})\u202f/\u202f(M\u202f+\u202f1). "
                 "M\u202f=\u202f10,000 permutations. RNG seed\u202f=\u202f20260223 (numpy.random.default_rng).\n"
-                "\u00b7 CDF scope: GLOBAL (career-wide). Each judge\u2019s samples are pooled across all events "
-                "in the database for that judge.\n"
+                "\u00b7 Exchangeability: median-of-8 neutralization removes shared skater-quality "
+                "signal; delta labels are exchangeable across entries under the null.\n"
                 f"\u00b7 Multiple testing: BH-FDR applied within-event across all "
                 f"9\u202f\u00d7\u202f{np_}\u202f=\u202f{tot:,} tests simultaneously. "
-                "Method version: isuimpact_quantile_v1."
+                "Method version: isuimpact_residual_v1."
             ),
             "col_widths":  {"A": 32, "B": 72},
             "numeric_cols": set(),
@@ -1325,7 +1328,14 @@ def build_overview_sheet(ws, event_facts, event_label):
 
 # ── Build bias workbook from database ─────────────────────────────────────────
 
-def build_bias_workbook_from_db(event_id: int, is_ice_dance: bool = True) -> Workbook:
+DEFAULT_METHOD_VERSION = "isuimpact_residual_v1"
+
+
+def build_bias_workbook_from_db(
+    event_id: int,
+    is_ice_dance: bool = True,
+    method_version: str = DEFAULT_METHOD_VERSION,
+) -> Workbook:
     """
     Query the canonical database and return an in-memory openpyxl Workbook
     with the same 5-sheet structure:
@@ -1351,10 +1361,10 @@ def build_bias_workbook_from_db(event_id: int, is_ice_dance: bool = True) -> Wor
                MIN(p_value),
                MIN(q_value_bh)
         FROM pairwise_impact_results
-        WHERE event_id = ?
+        WHERE event_id = ? AND method_version = ?
         GROUP BY judge_position
         ORDER BY judge_position
-    """, (event_id,)).fetchall()
+    """, (event_id, method_version)).fetchall()
     for jpos, n_sig, min_p, min_q in rows:
         ws.append([jpos, n_pairs, n_sig, min_p, min_q])
 
@@ -1365,9 +1375,9 @@ def build_bias_workbook_from_db(event_id: int, is_ice_dance: bool = True) -> Wor
     rows = conn.execute("""
         SELECT judge_position, rank, team, noc, impact_points
         FROM judge_team_impacts
-        WHERE event_id = ?
+        WHERE event_id = ? AND method_version = ?
         ORDER BY judge_position, rank
-    """, (event_id,)).fetchall()
+    """, (event_id, method_version)).fetchall()
     for row in rows:
         ws.append(list(row))
 
@@ -1384,8 +1394,8 @@ def build_bias_workbook_from_db(event_id: int, is_ice_dance: bool = True) -> Wor
                ROW_NUMBER() OVER (PARTITION BY judge_position
                                   ORDER BY ABS(bias_points) DESC) as rn
         FROM pairwise_impact_results
-        WHERE event_id = ?
-    """, (event_id,)).fetchall()
+        WHERE event_id = ? AND method_version = ?
+    """, (event_id, method_version)).fetchall()
     for row in rows:
         rn = row[-1]
         if rn <= 25:
@@ -1402,9 +1412,9 @@ def build_bias_workbook_from_db(event_id: int, is_ice_dance: bool = True) -> Wor
                rank_a, team_a, noc_a, rank_b, team_b, noc_b,
                bias_points, vote, p_value, q_value_bh
         FROM pairwise_impact_results
-        WHERE event_id = ?
+        WHERE event_id = ? AND method_version = ?
         ORDER BY judge_position, rank_a, rank_b
-    """, (event_id,)).fetchall()
+    """, (event_id, method_version)).fetchall()
     for row in rows:
         ws.append(list(row))
 
@@ -1414,9 +1424,10 @@ def build_bias_workbook_from_db(event_id: int, is_ice_dance: bool = True) -> Wor
 
     meta = conn.execute("""
         SELECT DISTINCT permutations, rng_seed, method_version
-        FROM pairwise_impact_results WHERE event_id = ?
-    """, (event_id,)).fetchone()
-    perms, seed, method_ver = meta if meta else (10000, 20260223, "isuimpact_quantile_v1")
+        FROM pairwise_impact_results
+        WHERE event_id = ? AND method_version = ?
+    """, (event_id, method_version)).fetchone()
+    perms, seed, method_ver = meta if meta else (10000, 20260223, method_version)
 
     event_info_row = conn.execute("""
         SELECT c.name, e.discipline, e.segment
@@ -1440,8 +1451,9 @@ def build_bias_workbook_from_db(event_id: int, is_ice_dance: bool = True) -> Wor
         ("Permutations",  str(perms)),
         ("RNG_seed",      str(seed)),
         ("Null_model",
-         "Style-adjusted quantile permutation: percentile labels "
-         "shuffled row-wise across judges, mapped back via each judge's empirical CDF"),
+         "Residual-label (delta-exchange) permutation: for each pair (A,B), "
+         "pool judge j's delta values across both entries and randomly split; "
+         "delta labels exchangeable under null (Emerson et al. 2009)"),
         ("CDF_scope",     "GLOBAL (career-wide per judge)"),
         ("Multiple_testing", f"BH-FDR within event, {9 * n_pairs} tests"),
         ("Significance",  "q <= 0.05"),
@@ -1516,7 +1528,8 @@ def build_bias_workbook_from_db(event_id: int, is_ice_dance: bool = True) -> Wor
 
 # ── Build one event workbook ────────────────────────────────────────────────────
 
-def build_event(event_id: int, dry_run: bool = False) -> bool:
+def build_event(event_id: int, dry_run: bool = False,
+                method_version: str = DEFAULT_METHOD_VERSION) -> bool:
     """
     Build (or dry-run) the complete analysis workbook for one event.
     Returns True on success, False on skip (missing source file).
@@ -1530,7 +1543,8 @@ def build_event(event_id: int, dry_run: bool = False) -> bool:
             return False
 
         event_info    = get_event_info(conn, event_id)
-        kf            = get_dynamic_key_findings(conn, event_id, event_info)
+        kf            = get_dynamic_key_findings(conn, event_id, event_info,
+                                                 method_version=method_version)
         event_facts   = build_dynamic_event_facts(event_info)
         bias_tab_meta = build_dynamic_bias_tab_meta(event_info, kf)
         judge_map     = {
@@ -1563,7 +1577,8 @@ def build_event(event_id: int, dry_run: bool = False) -> bool:
 
         print(f"  Loading bias data from database (event_id={event_id})")
         chat_wb = build_bias_workbook_from_db(
-            event_id, is_ice_dance=event_info["is_ice_dance"]
+            event_id, is_ice_dance=event_info["is_ice_dance"],
+            method_version=method_version,
         )
 
         sources = {"isu": isu_wb, "chat": chat_wb}
@@ -1687,17 +1702,25 @@ def main():
         "--all-events", action="store_true",
         help="Build workbooks for all 142 analyzed events."
     )
+    parser.add_argument(
+        "--method-version", default=DEFAULT_METHOD_VERSION,
+        help=f"Method version to pull from DB (default: {DEFAULT_METHOD_VERSION})"
+    )
     args = parser.parse_args()
 
     if not os.path.exists(DB_PATH):
         print(f"ERROR: Database not found: {DB_PATH}")
         sys.exit(1)
 
+    mv = args.method_version
+    print(f"Method version: {mv}")
+
     if args.all_events:
         conn = sqlite3.connect(DB_PATH)
         event_ids = sorted(
             r[0] for r in conn.execute(
-                "SELECT DISTINCT event_id FROM pairwise_impact_results"
+                "SELECT DISTINCT event_id FROM pairwise_impact_results WHERE method_version=?",
+                (mv,)
             ).fetchall()
         )
         conn.close()
@@ -1705,7 +1728,7 @@ def main():
         skipped = []
         for i, eid in enumerate(event_ids, 1):
             print(f"\n[{i}/{total}] event_id={eid}")
-            ok = build_event(eid, dry_run=args.dry_run)
+            ok = build_event(eid, dry_run=args.dry_run, method_version=mv)
             if not ok:
                 skipped.append(eid)
         print(f"\n{'DRY RUN ' if args.dry_run else ''}Done: {total - len(skipped)}/{total} built.")
@@ -1713,7 +1736,7 @@ def main():
             print(f"\u26a0\ufe0f  {len(skipped)} skipped: {skipped}")
     else:
         print(f"Building event_id={args.event_id} ...")
-        ok = build_event(args.event_id, dry_run=args.dry_run)
+        ok = build_event(args.event_id, dry_run=args.dry_run, method_version=mv)
         if not ok:
             sys.exit(1)
 

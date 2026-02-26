@@ -1,6 +1,7 @@
-# Judging Bias in Figure Skating — OSNR Audit Framework
+# Judging Bias in Figure Skating — ISU-Impact Audit Framework
 
-**Detecting and Remedying Anomalous Judging in Competitive Figure Skating: A Permutation-Based Audit Framework**
+**Detecting and Remedying Anomalous Judging in Competitive Figure Skating:
+A Pairwise, Style-Controlled, Nonparametric Test**
 
 Michael Allman, MBA · Independent Researcher · University of Chicago Booth School of Business
 
@@ -8,70 +9,73 @@ Michael Allman, MBA · Independent Researcher · University of Chicago Booth Sch
 
 ## Overview
 
-This repository contains the complete data, analysis code, and documentation for a statistical audit framework — the **Outlier Score Nullification Rule (OSNR)** — that detects systematic judging anomalies in competitive figure skating using publicly available ISU scoring data.
+This repository contains the complete data, analysis code, and documentation for a
+statistical audit framework that detects systematic judging anomalies in competitive
+figure skating using publicly available ISU scoring data.
 
-The framework applies an **exact combinatorial permutation test** to every pairwise judge-competitor comparison across a dataset of 17 major international competitions (January 2022 – February 2026), including the 2022 and 2026 Olympic Winter Games.
+The framework applies a **residual-label permutation test** (method: `isuimpact_residual_v1`)
+to every pairwise judge-competitor comparison across a dataset of 17 major international
+competitions (January 2022 – February 2026), including the 2022 and 2026 Olympic Winter Games.
 
 ### Key Findings
 
 | Metric | Value |
 |--------|-------|
 | Competitions | 17 |
-| Events (discipline × segment) | 142 analyzed (144 in DB; 2 excluded — 4C 2022 Ice Dance had 7-judge panels) |
+| Events analyzed | 142 |
 | Competitor entries | 2,706 |
 | Individual judge scores | 291,604 |
-| Pairwise comparisons (ISU-impact method) | 271,728 |
-| OWG 2026 Ice Dance FD: J1 p-value | 0.0003 (BH q = 0.034) |
+| Pairwise comparisons (residual-label method) | 271,728 |
+| OWG 2026 Ice Dance FD: J1 p-value | 0.0003 (BH q = 0.012) |
 | OWG 2026 Ice Dance FD: outcome-determinative | Yes — J1 bias +1.19 pts > 0.97 pt margin |
-| LOJO podium changes | 462 |
 | LOJO gold medal changes | 150 |
-
-> ⚠️ **Methodology Note (February 2026):** The B(j) pairwise test described in some sections
-> of this README is **deprecated** due to a known exchangeability flaw (~560× inflation).
-> The current primary method is **ISU-impact** (`calculate_isuimpact_v1.py`, `seed.sqlite`).
-> Numbers referencing "2,812 significant at p≤0.001" or "264,854 pairwise comparisons" are
-> from the deprecated method and will be updated once the corrected residual deviation test is run.
+| LOJO podium changes | 462 |
 
 ---
 
 ## Repository Structure
 
 ```
-├── README.md                    # This file
-├── requirements.txt             # Python dependencies (pip install -r requirements.txt)
-├── launch_dashboard.sh          # One-click launcher for the Streamlit web app
+├── README.md                              # This file
+├── requirements.txt                       # Python dependencies
 │
-├── src/
-│   ├── streamlit_app.py                      # Interactive web dashboard (4 pages)
-│   ├── generate_event_report.py              # Excel report generator (7-tab workbook)
-│   ├── calculate_pairwise_statistics_v3.py   # Exact combinatorial permutation test
-│   ├── calculate_lojo_full.py                # Leave-One-Judge-Out counterfactual
-│   ├── parse_singles_pairs.py                # PDF parser — Singles and Pairs
-│   ├── parse_ice_dance.py                    # PDF parser — Ice Dance (all formats)
-│   └── db_inserter.py                        # Database insertion module
+├── ── Analysis Pipeline ──
+├── calculate_isuimpact_v2.py              # Primary analysis: residual-label permutation
+├── calculate_lojo_full.py                 # Leave-One-Judge-Out (LOJO) counterfactual
+├── build_complete_event_workbook.py       # 12-tab Excel workbook generator (per event)
+├── generate_official_scoring_xlsx.py      # ISU-format per-event scoring files
+├── build_v4_database.py                   # Database consolidation (already applied)
+├── check_spec_params.py                   # Spec/DB parameter verification
 │
-├── docs/
-│   ├── project_documentation.md  # Comprehensive methodology and architecture
-│   ├── Data_Dictionary.md        # All database fields and table schemas
-│   ├── glossary.md               # Definitions: OSNR, LOJO, BI(j), Tier 1/2
-│   ├── BI_Calculation_Method.docx
-│   ├── Data_Dictionary.docx
-│   ├── glossary.docx
-│   └── analysis_queries.sql      # Example SQL queries for database exploration
+├── ── Parsers ──
+├── parse_singles_pairs.py                 # PDF parser — Singles and Pairs
+├── parse_ice_dance.py                     # PDF parser — Ice Dance (all formats)
+├── db_inserter.py                         # Database insertion module
 │
-├── data/
-│   └── figure_skating_ijs.sqlite  # Complete database (~104 MB; see note below)
+├── ── Web App ──
+├── streamlit_app.py                       # Interactive dashboard (4 pages)
 │
-└── source_pdfs/
-    └── figure_skating_seed_bundle/
-        └── isu_pdfs/              # All ISU source PDFs organized by competition
-            ├── owg2026/
-            ├── owg2022/
-            ├── wc2025/
-            └── ...
+├── ── Documentation ──
+├── judge_bias_isu_judging_system.docx     # Submission draft (JQAS target)
+├── engineering_spec_isuimpact_v1.docx     # Developer implementation spec (v1.2)
+├── reproduction_checklist_isuimpact.docx  # Independent replication guide
+├── OWG2026_IceDance_FD_FAQ.docx           # Journalist FAQ (41 Q&As)
+├── Data_Dictionary.md / .docx            # All 14 table schemas and column definitions
+├── glossary.md / .docx                   # Term definitions
+├── file_inventory.md                     # Living list of all project files + status
+│
+├── ── Data ──
+├── figure_skating_ijs_v4.sqlite           # Primary database (~195 MB)
+├── source_pdfs/isu_sov/                   # ISU Scale of Values PDFs (reference)
+├── excel_output/                          # 288 auto-generated workbooks (do not edit)
+│
+└── archive/                               # Retired scripts, old databases, legacy docs
 ```
 
-> **Database note:** `figure_skating_ijs.sqlite` (~104 MB) contains all scoring data plus pairwise statistics. Due to GitHub file size limits, it is stored via [Git LFS](https://git-lfs.com/) or available as a direct download from [Releases](../../releases).
+> **Database note:** `figure_skating_ijs_v4.sqlite` (~195 MB) contains all scoring data
+> plus pairwise_impact_results (v1 + v2 methods) and LOJO results.
+> Due to GitHub file size limits, it is stored via [Git LFS](https://git-lfs.com/)
+> or available as a direct download from [Releases](../../releases).
 
 ---
 
@@ -87,60 +91,65 @@ brew install poppler   # for PDF parsing only (macOS)
 ### Launch the Web Dashboard
 
 ```bash
-streamlit run src/streamlit_app.py
+streamlit run streamlit_app.py
 ```
 
 The dashboard provides four views:
 1. **Competitions** — browse all 17 competitions and 142 analyzed events
-2. **Event Analysis** — OSNR pairwise heatmap, LOJO counterfactual, significance summary for any event
+2. **Event Analysis** — pairwise heatmap, LOJO counterfactual, significance summary
 3. **Judge Profiles** — per-judge scoring patterns across events
-4. **System-Wide Stats** — Tier 1 and Tier 2 flag summary across the full dataset
+4. **System-Wide Stats** — flag summary across all events
 
-### Generate an Excel Report
+### Generate an Analysis Workbook
 
 ```bash
-python src/generate_event_report.py
+python3 build_complete_event_workbook.py --event-id 2          # OWG 2026 Ice Dance FD
+python3 build_complete_event_workbook.py --all-events          # all 142 events
+python3 build_complete_event_workbook.py --all-events --dry-run  # preview
 ```
-
-Produces a 7-tab Excel workbook for any event with raw scores, element deviations, BI(j) statistics, permutation p-values, and LOJO counterfactual results.
 
 ---
 
 ## Statistical Method
 
-### The B(j) Bias Statistic
+### The ISU-Impact Bias Statistic
 
-For a given judge j and competitor pair (A, B), the bias statistic is:
+For judge j and scoring row r, compute the delta:
 
 ```
-B(j, A, B) = mean{ d(u, j) : u ∈ elements of A } − mean{ d(u, j) : u ∈ elements of B }
+Δ(j, r) = F_r(actual marks) − F_r(neutralized marks)
 ```
 
-where `d(u, j)` is judge j's deviation from the panel consensus on element u (peer deviation).
+where `F_r` is the ISU row scoring function (trimmed mean × factor, faithful to the
+published spreadsheet) and the neutralized mark replaces judge j's mark with the
+median of the other 8 judges. Aggregate over all rows for competitor T:
 
-### Exact Combinatorial Permutation Test
+```
+I_j(T) = Σ_r Δ(j, r)        B_j(A, B) = I_j(A) − I_j(B)
+```
 
-For a program with k elements per competitor:
+### Residual-Label Permutation Test
 
-1. Pool all 2k peer deviations (A's k + B's k)
-2. Enumerate **all C(2k, k)** distinct splits of the pool into two equal groups:
-   - k = 9 elements (Free Dance, Short Program): **C(18,9) = 48,620 splits**
-   - k = 12 elements (Free Skating): **C(24,12) = 2,704,156 splits**
-3. Compute simulated B_sim for each split
-4. **p-value = extreme_count / C(2k, k)** — exact fraction, not an estimate
+For each judge j and competitor pair (A, B):
 
-No random seed. No sampling error. Fully deterministic.
+1. Pool judge j's delta values for both entries: `d_pool = d_A ∪ d_B`
+2. Under the null of no directional bias, delta labels are exchangeable across entries
+   (median-of-8 neutralization removes the shared quality signal)
+3. For M = 10,000 permutations: randomly split `d_pool` into groups of size |A| and |B|;
+   compute `B_j^{perm}(A,B) = Σ(group A) − Σ(group B)`
+4. `p = (1 + #{|B_perm| ≥ |B_obs|}) / (M + 1)`
 
-### Two-Tier OSNR Decision Rule
+Multiple testing: Benjamini–Hochberg FDR within event across all 9 × C(N,2) tests.
 
-| Tier | Condition | Action |
-|------|-----------|--------|
-| Tier 1 | p ≤ 0.01 | Flag for integrity panel review; result provisional |
-| Tier 2 | p ≤ 0.001 **AND** LOJO removes judge changes podium | Automatic score adjustment (replace judge scores with trimmed panel mean) |
+**Method tag:** `isuimpact_residual_v1` | **RNG seed:** 20260223 | **M:** 10,000
+
+Reference: Emerson, Seltzer & Lin (2009). *Assessing Judging Bias: An Example From the
+2000 Olympic Games.* The American Statistician 63(2), 124–131.
 
 ### Leave-One-Judge-Out (LOJO) Counterfactual
 
-For each judge in each event: remove their scores, recompute trimmed means, re-rank all competitors. A judge is *outcome-determinative* if their removal changes any medal boundary result.
+For each judge in each event: remove their scores, recompute trimmed means, re-rank
+all competitors. A judge is *outcome-determinative* if removal changes any medal boundary.
 
 ---
 
@@ -151,41 +160,47 @@ For each judge in each event: remove their scores, recompute trimmed means, re-r
 | ISU European Figure Skating Championships | 2022–2025 | 32 |
 | ISU Four Continents Figure Skating Championships | 2022–2025 | 32 |
 | ISU World Figure Skating Championships | 2022–2025 | 32 |
-| ISU Grand Prix of Figure Skating Final | 2022/23, 2023/24, 2024/25 | 24 |
+| ISU Grand Prix of Figure Skating Final | 2022/23–2024/25 | 24 |
 | Olympic Winter Games 2022 (Beijing) | 2022 | 8 |
 | Olympic Winter Games 2026 (Milano–Cortina) | 2026 | 16 |
 | **Total** | **2022–2026** | **142 analyzed** |
 
-Disciplines: Men's Singles, Women's Singles, Pair Skating, Ice Dance (each: Short Program + Free Skating/Dance + Rhythm Dance).
+142 of 144 events analyzed; 2 excluded (4C 2022 Ice Dance RD/FD: 7-judge panels;
+method requires 9). Disciplines: Men's Singles, Women's Singles, Pair Skating, Ice Dance.
 
 ---
 
 ## Reproducibility
 
-All results are reproducible from the source PDFs:
-
 ```bash
-# Re-run pairwise analysis (WARNING: ~17–18 hours on a standard laptop)
-python src/calculate_pairwise_statistics_v3.py
+# Verify database and spec are in sync — run before any submission commit
+python3 check_spec_params.py
+
+# Re-run pairwise analysis (~17 minutes on M1 MacBook Pro)
+python3 calculate_isuimpact_v2.py
 
 # Re-run LOJO counterfactual (~30 minutes)
-python src/calculate_lojo_full.py
+python3 calculate_lojo_full.py
 ```
 
-Source PDFs in `source_pdfs/` are the original ISU documents, downloaded from the [ISU results website](https://www.isu.org/figure-skating/results).
+Source PDFs are ISU 'Judges Details per Skater' documents, downloaded from the
+[ISU results website](https://www.isu.org/figure-skating/results).
 
 ---
 
 ## Citation
 
-> Allman, M. (2026). *Detecting and Remedying Anomalous Judging in Competitive Figure Skating: A Permutation-Based Audit Framework*. [Submitted to Journal of Quantitative Analysis in Sports.]
+> Allman, M. (2026). *Detecting and Remedying Anomalous Judging in Competitive Figure
+> Skating: A Permutation-Based Audit Framework*. [Submitted to Journal of Quantitative
+> Analysis in Sports.]
 
 ---
 
 ## License
 
 - **Code:** MIT License
-- **Data:** ISU scoring data is sourced from publicly available ISU results documents compiled for research purposes.
+- **Data:** ISU scoring data sourced from publicly available ISU results documents
+  compiled for research purposes.
 
 ---
 

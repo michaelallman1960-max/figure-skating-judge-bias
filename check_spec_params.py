@@ -25,7 +25,7 @@ REPRO_CHECKLIST = BASE / "reproduction_checklist_isuimpact.docx"
 
 # ── Expected values (ground truth from the published run) ─────────────────────
 EXPECTED = {
-    "method_version": "isuimpact_quantile_v1",
+    "method_version": "isuimpact_residual_v1",
     "rng_seed": 20260223,
     "permutations": 10000,
     "events_analyzed": 142,
@@ -56,14 +56,14 @@ else:
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
 
-    # Method version
+    # Method version — verify the published method is present
     rows = cur.execute(
         "SELECT DISTINCT method_version FROM pairwise_impact_results"
     ).fetchall()
     versions = [r[0] for r in rows]
     check(
-        f"method_version = '{EXPECTED['method_version']}'",
-        versions == [EXPECTED["method_version"]],
+        f"method_version '{EXPECTED['method_version']}' present",
+        EXPECTED["method_version"] in versions,
         f"Found: {versions}",
     )
 
@@ -99,12 +99,15 @@ else:
         f"Found: {n_events}",
     )
 
-    # Row counts sanity
-    n_rows = cur.execute("SELECT COUNT(*) FROM pairwise_impact_results").fetchone()[0]
+    # Row counts sanity — check published method version specifically
+    n_rows_v2 = cur.execute(
+        "SELECT COUNT(*) FROM pairwise_impact_results WHERE method_version=?",
+        (EXPECTED["method_version"],)
+    ).fetchone()[0]
     check(
-        f"pairwise_impact_results row count = 271,728",
-        n_rows == 271728,
-        f"Found: {n_rows:,}",
+        f"pairwise_impact_results rows for {EXPECTED['method_version']} = 271,728",
+        n_rows_v2 == 271728,
+        f"Found: {n_rows_v2:,}",
     )
 
     conn.close()
@@ -138,15 +141,15 @@ try:
         "No mention of 10,000 permutations",
     )
     check(
-        "Global CDF scope stated",
-        "global" in spec_text.lower() or "GLOBAL" in spec_text,
-        "No mention of 'global' CDF scope",
+        "Residual-label method described",
+        "residual" in spec_text.lower() or "delta-exchange" in spec_text.lower(),
+        "No mention of residual-label / delta-exchange method in spec",
     )
     check(
-        "No event-scope CDF language",
-        "for that event (or segment)" not in spec_text
-        and "for that event" not in spec_text,
-        "Found stale event-scope CDF language: 'for that event'",
+        "No quantile/CDF permutation language",
+        "percentile labels" not in spec_text
+        and "empirical CDF" not in spec_text.lower(),
+        "Found stale quantile-null language (percentile labels / empirical CDF)",
     )
     check(
         "goe_factors table referenced",
@@ -160,7 +163,8 @@ try:
     )
     check(
         "version_stamp present (Version 1.1 or later)",
-        "Version 1.1" in spec_text or "Version 2" in spec_text,
+        any(f"Version 1.{n}" in spec_text for n in range(1, 10))
+        or "Version 2" in spec_text,
         "Spec still at Version 1.0 — needs update",
     )
 
