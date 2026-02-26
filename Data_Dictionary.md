@@ -4,6 +4,7 @@
 **Database:** `figure_skating_ijs_v4.sqlite`
 **Prepared:** February 2026
 **Version:** 2.0
+**Last verified against:** `figure_skating_ijs_v4.sqlite` — 2026-02-26
 
 ---
 

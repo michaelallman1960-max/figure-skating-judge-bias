@@ -29,6 +29,7 @@ FILES = [
     ("faq_v1.md",                  "FAQ — Statistical Audit of Figure Skating Judging"),
     ("Data_Dictionary.md",         "Data Dictionary — ISU Figure Skating IJS Judging Bias Study"),
     ("database_summary.md",        "Figure Skating Judging Bias — Database Summary"),
+    ("glossary.md",                "Glossary of Terms — Figure Skating Judging Bias Analysis"),
 ]
 
 TODAY = date.today().strftime("%B %d, %Y")

@@ -2,6 +2,7 @@
 ## Figure Skating Judging Bias Analysis
 
 **Prepared by:** Michael Allman
+**Last verified:** 2026-02-26
 
 ---
 

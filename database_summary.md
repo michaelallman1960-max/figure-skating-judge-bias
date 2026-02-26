@@ -4,6 +4,7 @@
 **Location:** Judging Bias folder
 **Prepared by:** Michael Allman
 **Updated:** February 2026
+**Last verified against:** `figure_skating_ijs_v4.sqlite` — 2026-02-26
 
 ---
 
