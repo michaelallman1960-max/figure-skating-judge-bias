@@ -27,6 +27,7 @@ FILES = [
     ("history_log.md",             "History Log — Session & Decision Record"),
     ("ISU_Scoring_Methodology.md", "ISU Ice Dance Scoring Methodology"),
     ("faq_v1.md",                  "FAQ — Statistical Audit of Figure Skating Judging"),
+    ("Data_Dictionary.md",         "Data Dictionary — ISU Figure Skating IJS Judging Bias Study"),
 ]
 
 TODAY = date.today().strftime("%B %d, %Y")
