@@ -48,6 +48,22 @@ Icon?
 # Archive folder — not part of deliverable repo
 archive/
 
+# Private strategy and internal documents — not for public repo
+cover_emails_*.docx
+cover_emails_*.md
+pitch_drafts_*.md
+revenue_strategy.*
+ip_protection.*
+media_strategy.*
+journal_strategy.*
+history_log.*
+debugging.md
+post_10k_checklist.md
+AUDIT-REPORT-*.md
+
+# Old paper drafts — only v7 is public
+paper_draft_v[0-6].docx
+
 # Generated output and large binary data — reproducible from scripts + DB
 excel_output/
 source_pdfs/
