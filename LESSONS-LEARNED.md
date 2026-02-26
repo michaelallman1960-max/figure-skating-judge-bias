@@ -93,6 +93,11 @@ different valid context. Example: checking absence of "preserve judge style" fai
 "null models that preserve judge style" phrasing in the Abstract/Introduction needed changing.
 **Make absence checks specific enough to target only the problematic context.**
 
+### Add `*.docx.bak_*` to `.gitignore` before writing any fix scripts
+Fix scripts create `.bak_*` backups before modifying the document. Without a gitignore rule,
+these accumulate as untracked files and clutter file pickers and `git status`. Add the rule
+once at project setup: `*.docx.bak_*` in `.gitignore`.
+
 ### Run each fix script on a fresh backup
 Each fix script makes a `.bak_*` backup before modifying the document. If the script fails
 mid-run and saves a partially-modified document, restore from the backup before re-running.
