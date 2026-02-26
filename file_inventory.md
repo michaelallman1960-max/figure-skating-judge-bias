@@ -83,7 +83,7 @@ _Rule: edit the `.md` file, then run `python3 make_word_docs.py` to regenerate `
 
 | File | Description | Status | Last modified |
 |------|-------------|--------|---------------|
-| `judge_bias_isu_judging_system.docx` | **Submission draft** — main academic paper (JQAS target). Section 6.2 (residual-label method) added + Appendix A rewritten (exchangeability diagnosis + justification for v2) 2026-02-26. Methods narrative still uses v1 language in some places. | needs-update | 2026-02-26 |
+| `judge_bias_isu_judging_system.docx` | **Submission draft** — main academic paper (JQAS target). Fully updated to v2 (isuimpact_residual_v1): Abstract, Sections 8–9, Tables 1–3, Conclusion. Remaining gaps: dataset descriptor table (Section 3), calibration figure (Section 9.5), J1 nationality analysis. | needs-update | 2026-02-26 |
 | `significance_draft_v1` (md + docx) | Significance Magazine article draft (~1,480 words). Describes retired exact combinatorial test throughout; needs full method rewrite. | needs-update | 2026-02-26 |
 
 ---
