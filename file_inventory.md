@@ -1,5 +1,5 @@
 # Project File Inventory
-**Judging Bias — OSNR Audit Framework**
+**Judging Bias — ISU-Impact Audit Framework**
 _Last updated: 2026-02-26 | Maintained by: update this file whenever a file is created, archived, or significantly changed_
 
 ---
@@ -27,12 +27,12 @@ Status values: `current` · `needs-update` · `outdated` · `delete`
 
 | File | Description | Status | Last modified |
 |------|-------------|--------|---------------|
-| `calculate_isuimpact_v2.py` | **Primary analysis script** — residual-label permutation method (isuimpact_residual_v1); M=10,000, seed=20260223, global CDF. Writes to `pairwise_impact_results` + `judge_team_impacts`. | current | 2026-02-26 |
+| `calculate_isuimpact_v2.py` | **Primary analysis script** — residual-label permutation method (isuimpact_residual_v1); M=10,000, seed=20260223. No CDF — pools judge deltas and permutes labels. Writes to `pairwise_impact_results` + `judge_team_impacts`. | current | 2026-02-26 |
 | `calculate_isuimpact_v1.py` | Retired v1 script — quantile permutation null (exchangeability flaw). Kept for reference/reproducibility. Do not re-run. | outdated | 2026-02-24 |
 | `calculate_lojo_full.py` | LOJO (Leave-One-Judge-Out) counterfactual — removes each judge, re-ranks, writes to `lojo_scores` + `lojo_event_summary`. ~30 min runtime. | current | 2026-02-24 |
 | `friedman_test_event2.py` | One-off validation: Friedman + Nemenyi test on event_id=2 (OWG 2026 Ice Dance FD). Confirms J1 significant (χ²=69.98, p<0.001). Not part of main pipeline. | current | 2026-02-26 |
 | `check_spec_params.py` | Validates that all method parameters in code match engineering_spec. Run before any submission commit. | current | 2026-02-26 |
-| `build_complete_event_workbook.py` | Generates 12-tab Excel analysis workbook per event. Supports `--event-id`, `--dry-run`, `--all-events`. All sheets locked (no password). | current | 2026-02-24 |
+| `build_complete_event_workbook.py` | Generates 12-tab Excel analysis workbook per event. Supports `--event-id`, `--dry-run`, `--all-events`, `--method-version`. Filters all DB queries by method_version (default: isuimpact_residual_v1). All sheets locked (no password). | current | 2026-02-26 |
 | `generate_official_scoring_xlsx.py` | Generates ISU-format per-event scoring files (144 files, one per event including excluded). | current | 2026-02-22 |
 | `build_v4_database.py` | Database consolidation script — merged v3 (LOJO) + seed (ISU-impact) into v4. Dry-run by default, `--apply` to build. Already run; v4 DB is live. | current | 2026-02-24 |
 | `create_faq_document.py` | Generates `OWG2026_IceDance_FD_FAQ.docx` journalist FAQ (8 categories, 41 Q&As). Values hardcoded from verified DB query. | current | 2026-02-24 |
@@ -70,8 +70,8 @@ _Rule: edit the `.md` file, then run `python3 make_word_docs.py` to regenerate `
 | `glossary` | Term definitions: ISU-impact, LOJO, BiasPoints, Tier 1/2, etc. | current | 2026-02-26 |
 | `methodology_diagnosis_v1` | Root-cause analysis of exchangeability flaw in v1 B(j) test; rationale for switching to residual-label permutation. Historical reference. | current | 2026-02-26 |
 | `ISU_Scoring_Methodology` | Reference doc: how IJS trimmed-mean scoring works, GOE factors, PCS, deductions. | current | 2026-02-22 |
-| `reproduction_checklist_isuimpact` (.docx only) | Step-by-step independent replication spec. **Describes v1 quantile method** — needs v2 update. | needs-update | 2026-02-26 |
-| `engineering_spec_isuimpact_v1` (.docx only) | Developer implementation guide. **Describes v1 quantile method** — needs v2 update. | needs-update | 2026-02-26 |
+| `reproduction_checklist_isuimpact` (.docx only) | Step-by-step independent replication spec. Updated to residual-label permutation method (v2). | current | 2026-02-26 |
+| `engineering_spec_isuimpact_v1` (.docx only) | Developer implementation guide — v1.2, residual-label permutation method. Seed, M, and method version verified by `check_spec_params.py`. | current | 2026-02-26 |
 | `project_documentation` | Comprehensive methodology and architecture overview. May be partially outdated (pre-v2). | needs-update | 2026-02-24 |
 | `debugging.md` | Bug fix history — root causes and resolutions for all non-trivial incidents. | current | 2026-02-24 |
 | `history_log` | Full session-by-session work log (Sessions 1–24 archived). | current | 2026-02-24 |
@@ -83,7 +83,7 @@ _Rule: edit the `.md` file, then run `python3 make_word_docs.py` to regenerate `
 
 | File | Description | Status | Last modified |
 |------|-------------|--------|---------------|
-| `judge_bias_isu_judging_system.docx` | **Submission draft** — main academic paper (JQAS target). Section 6.3 (Alternative Methods) added 2026-02-26. Methods section still uses v1 language. | needs-update | 2026-02-26 |
+| `judge_bias_isu_judging_system.docx` | **Submission draft** — main academic paper (JQAS target). Section 6.2 (residual-label method) added + Appendix A rewritten (exchangeability diagnosis + justification for v2) 2026-02-26. Methods narrative still uses v1 language in some places. | needs-update | 2026-02-26 |
 | `significance_draft_v1` (md + docx) | Significance Magazine article draft (~1,480 words). Describes retired exact combinatorial test throughout; needs full method rewrite. | needs-update | 2026-02-26 |
 
 ---
@@ -92,7 +92,7 @@ _Rule: edit the `.md` file, then run `python3 make_word_docs.py` to regenerate `
 
 | File | Description | Status | Last modified |
 |------|-------------|--------|---------------|
-| `OWG2026_IceDance_FD_FAQ.docx` | Journalist FAQ — OWG 2026 Ice Dance FD finding (43 KB, 41 Q&As). Press-ready. | current | 2026-02-24 |
+| `OWG2026_IceDance_FD_FAQ.docx` | Journalist FAQ — OWG 2026 Ice Dance FD finding (43 KB, 41 Q&As). Updated 2026-02-26: method = isuimpact_residual_v1, q = 0.012. Press-ready. | current | 2026-02-26 |
 | `faq_v1` (md + docx) | General FAQ — broader methodology and findings. | current | 2026-02-24 |
 | `oped_draft` (md + docx) | Op-ed draft for general publication. | current | 2026-02-24 |
 | `media_strategy` (md + docx) | Press outreach strategy and outlet list. | current | 2026-02-24 |
