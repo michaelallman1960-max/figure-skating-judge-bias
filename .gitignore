@@ -2,6 +2,7 @@
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+*.sqlite.bak*
 
 # Python
 __pycache__/
