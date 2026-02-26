@@ -3,6 +3,7 @@
 *.sqlite-shm
 *.sqlite-wal
 *.sqlite.bak*
+*.docx.bak_*
 
 # Python
 __pycache__/
