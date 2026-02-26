@@ -31,10 +31,9 @@ import plotly.graph_objects as go
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH  = os.path.join(BASE_DIR, "figure_skating_ijs_v4.sqlite")
 
-# Import load_event_data from generate_event_report.py
-# Safe: parse_args() only called inside main(), guarded by __name__ == '__main__'
+# load_event_data extracted to _event_loader.py (generate_event_report.py archived)
 sys.path.insert(0, BASE_DIR)
-from generate_event_report import load_event_data  # noqa: E402
+from _event_loader import load_event_data  # noqa: E402
 
 # ── Page config (must be first Streamlit call) ──────────────────────────────
 st.set_page_config(
@@ -257,7 +256,7 @@ def generate_excel_bytes(event_id) -> bytes | None:
     tmp = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
     tmp_path = tmp.name
     tmp.close()
-    script = os.path.join(BASE_DIR, "generate_event_report.py")
+    script = os.path.join(BASE_DIR, "archive", "generate_event_report.py")
     try:
         result = subprocess.run(
             [sys.executable, script, "--event-id", str(event_id), "--output", tmp_path],
