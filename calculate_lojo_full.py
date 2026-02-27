@@ -12,8 +12,9 @@ import shutil
 import sqlite3
 from datetime import datetime, timezone
 from itertools import combinations
+from pathlib import Path
 
-DB_PATH = "/Users/allman/Library/CloudStorage/Dropbox/Dropbox Mike/Judging Bias/figure_skating_ijs_v4.sqlite"
+DB_PATH = str(Path(__file__).parent / "figure_skating_ijs_v4.sqlite")
 
 
 def parse_args():
@@ -532,16 +533,19 @@ def main():
     else:
         print("\n=== Integrity Checks === (skipped in dry-run)")
 
-    # Three-regime comparison (requires pairwise_judge_statistics)
+    # Three-regime comparison (legacy — requires pairwise_judge_statistics table from v1 schema)
     print("\n=== Three-Regime: OSNR Tier-2 Candidates (winner change + p≤0.001) ===")
-    candidates = run_three_regime_comparison(conn)
-    if candidates:
-        for c in candidates:
-            print(f"  {c['competition'][:30]:30s} | {c['discipline']:12s} {c['segment']:4s} | "
-                  f"J{c['judge_position']} {c['judge_name'][:15]:15s} | p={c['p_value']:.4f} | "
-                  f"tau={c['kendall_tau']:.4f} | {c['actual_winner'][:12]} → {c['cf_winner'][:12]}")
-    else:
-        print("  (none found — check pairwise_judge_statistics table)")
+    try:
+        candidates = run_three_regime_comparison(conn)
+        if candidates:
+            for c in candidates:
+                print(f"  {c['competition'][:30]:30s} | {c['discipline']:12s} {c['segment']:4s} | "
+                      f"J{c['judge_position']} {c['judge_name'][:15]:15s} | p={c['p_value']:.4f} | "
+                      f"tau={c['kendall_tau']:.4f} | {c['actual_winner'][:12]} → {c['cf_winner'][:12]}")
+        else:
+            print("  (none found)")
+    except Exception as e:
+        print(f"  (skipped — legacy section not applicable to v4 schema: {e})")
 
     conn.close()
     print(f"\nCompleted: {datetime.now().strftime('%H:%M:%S')}")
