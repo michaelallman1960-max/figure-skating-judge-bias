@@ -1,6 +1,6 @@
 # Figure Skating Judging Bias — Database Summary
 
-**Database:** `figure_skating_ijs_v4.sqlite` (~100 MB) — single canonical database
+**Database:** `figure_skating_ijs_v4.sqlite` (~195 MB) — single canonical database
 **Location:** Judging Bias folder
 **Prepared by:** Michael Allman
 **Updated:** February 2026
@@ -87,7 +87,7 @@ The database (`figure_skating_ijs_v4.sqlite`) contains 14 tables in three catego
 
 **`lojo_event_summary`** — per-judge per-event LOJO summary: winner changes, podium changes, rank inversions, Kendall tau distance. 1,288 rows.
 
-**`pairwise_impact_results`** — core output of the ISU-impact method. One row per judge × ordered pair of entries × event. Contains `bias_points`, `p_value`, `q_value_bh`. Computed by `calculate_isuimpact_v1.py` with M = 10,000 permutations, seed = 20260223, global CDF. 271,728 rows across 142 events.
+**`pairwise_impact_results`** — core output of the ISU-impact method. One row per judge × ordered pair of entries × event. Contains `bias_points`, `p_value`, `q_value_bh`. Computed by `calculate_isuimpact_v2.py` (method: `isuimpact_residual_v1`) with M = 10,000 permutations, seed = 20260223. 271,728 rows across 142 events.
 
 **`judge_team_impacts`** — per-judge per-entry aggregated ISU-impact scores: net bias points each judge contributed toward each entry. 24,174 rows.
 
@@ -98,4 +98,4 @@ The database (`figure_skating_ijs_v4.sqlite`) contains 14 tables in three catego
 - **Event-local analysis only.** All statistics are computed within a single event's judging panel. No cross-competition judge identity linking is performed at this stage.
 - **No judge identity linking across events.** Judges are identified by position (J1–J9) within each event. Name and country are stored where available but not used to merge records across events.
 - **Source fidelity.** All scores are taken directly from the ISU official published scoring sheets. No imputation or estimation is performed. Where a judge score is absent (e.g., a skater withdrew mid-program), only the elements actually scored are stored.
-- **Reproducible.** The full parsing pipeline (`parse_ice_dance.py`, `parse_singles_pairs.py`) and analysis scripts (`calculate_lojo_full.py`, `calculate_isuimpact_v1.py`, `build_complete_event_workbook.py`) are retained alongside the database and can re-generate all results from the original PDFs.
+- **Reproducible.** The full parsing pipeline (`parse_ice_dance.py`, `parse_singles_pairs.py`) and analysis scripts (`calculate_lojo_full.py`, `calculate_isuimpact_v2.py`, `build_complete_event_workbook.py`) are retained alongside the database and can re-generate all results from the original PDFs.

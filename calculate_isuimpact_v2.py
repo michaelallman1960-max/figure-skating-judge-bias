@@ -50,13 +50,14 @@ import sys
 import time
 from collections import defaultdict
 from datetime import datetime, timezone
+from pathlib import Path
 
 import numpy as np
 from statsmodels.stats.multitest import multipletests
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 
-DB_PATH       = "/Users/allman/Library/CloudStorage/Dropbox/Dropbox Mike/Judging Bias/figure_skating_ijs_v4.sqlite"
+DB_PATH       = str(Path(__file__).parent / "figure_skating_ijs_v4.sqlite")
 METHOD_VER    = "isuimpact_residual_v1"
 DEFAULT_SEED  = 20260223
 DEFAULT_PERMS = 10_000
