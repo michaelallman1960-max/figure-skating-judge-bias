@@ -193,8 +193,8 @@ Source PDFs are ISU 'Judges Details per Skater' documents, downloaded from the
 ## Citation
 
 > Allman, M. (2026). *Detecting and Remedying Anomalous Judging in Competitive Figure
-> Skating: A Permutation-Based Audit Framework*. [Submitted to Journal of Quantitative
-> Analysis in Sports.]
+> Skating: A Permutation-Based Audit Framework*. [Submitted to Scientific Reports
+> (Nature Portfolio).]
 
 ---
 

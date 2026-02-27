@@ -8,7 +8,7 @@ Global conventions live in `~/CLAUDE.md`. This file takes precedence where there
 ## Project Identity
 
 - **Goal:** Detect systematic judging bias in ISU figure skating using a residual-label permutation test
-- **Paper target:** JQAS (Journal of Quantitative Analysis in Sports)
+- **Paper target:** Scientific Reports (Nature Portfolio) — primary; JQAS as fallback
 - **Method tag:** `isuimpact_residual_v1` — residual-label permutation (Emerson et al. 2009)
 - **Database:** `figure_skating_ijs_v4.sqlite` (~195 MB) — single canonical source of truth
 
