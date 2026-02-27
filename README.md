@@ -39,43 +39,48 @@ competitions (January 2022 – February 2026), including the 2022 and 2026 Olymp
 
 ```
 ├── README.md                              # This file
-├── requirements.txt                       # Python dependencies
+├── requirements.txt                       # Python dependencies (pip install -r requirements.txt)
 │
 ├── ── Analysis Pipeline ──
-├── calculate_isuimpact_v2.py              # Primary analysis: residual-label permutation
+├── calculate_isuimpact_v2.py              # Primary analysis: residual-label permutation test
 ├── calculate_lojo_full.py                 # Leave-One-Judge-Out (LOJO) counterfactual
-├── build_complete_event_workbook.py       # 12-tab Excel workbook generator (per event)
-├── generate_official_scoring_xlsx.py      # ISU-format per-event scoring files
-├── build_v4_database.py                   # Database consolidation (already applied)
-├── check_spec_params.py                   # Spec/DB parameter verification
+├── build_complete_event_workbook.py       # 12-tab Excel workbook generator (per event or all)
+├── generate_official_scoring_xlsx.py      # ISU-format per-event scoring spreadsheets
+├── build_v4_database.py                   # Builds figure_skating_ijs_v4.sqlite from source data
+├── check_spec_params.py                   # Pre-submission gate: verifies DB/spec/paper consistency
 │
 ├── ── Parsers ──
-├── parse_singles_pairs.py                 # PDF parser — Singles and Pairs
-├── parse_ice_dance.py                     # PDF parser — Ice Dance (all formats)
-├── db_inserter.py                         # Database insertion module
+├── parse_singles_pairs.py                 # PDF parser — Singles and Pairs scoring sheets
+├── parse_ice_dance.py                     # PDF parser — Ice Dance scoring sheets (all formats)
+├── db_inserter.py                         # Database insertion module used by parsers
 │
-├── ── Web App ──
-├── streamlit_app.py                       # Interactive dashboard (4 pages)
+├── ── Output Generators ──
+├── create_faq_document.py                 # Generates OWG2026_IceDance_FD_FAQ.docx
+├── make_word_docs.py                      # Regenerates all .docx files from .md sources
 │
 ├── ── Documentation ──
-├── judge_bias_isu_judging_system.docx     # Submission draft (JQAS target)
-├── engineering_spec_isuimpact_v1.docx     # Developer implementation spec (v1.2)
-├── reproduction_checklist_isuimpact.docx  # Independent replication guide
-├── OWG2026_IceDance_FD_FAQ.docx           # Journalist FAQ (41 Q&As)
-├── Data_Dictionary.md / .docx            # All 14 table schemas and column definitions
-├── glossary.md / .docx                   # Term definitions
-├── file_inventory.md                     # Living list of all project files + status
+├── judge_bias_isu_judging_system.docx     # Submission draft — Scientific Reports (Nature Portfolio)
+├── engineering_spec_isuimpact_v1.docx     # Developer implementation spec for independent replication
+├── reproduction_checklist_isuimpact.docx  # Step-by-step replication guide
+├── OWG2026_IceDance_FD_FAQ.docx           # OWG 2026 Ice Dance FD — journalist FAQ (41 Q&As)
+├── faq_v1.md / .docx                      # General method FAQ
+├── Data_Dictionary.md / .docx             # All 14 database table schemas and column definitions
+├── database_summary.md / .docx            # Database overview — table sizes, row counts, relationships
+├── glossary.md / .docx                    # Term definitions (BiasPoints, LOJO, BH-FDR, etc.)
+├── pvalue_histogram.png                   # Figure 1 — p-value distribution across 271,728 tests
 │
-├── ── Data ──
-├── figure_skating_ijs_v4.sqlite           # Primary database (~195 MB)
-├── source_pdfs/isu_sov/                   # ISU Scale of Values PDFs (reference)
-├── excel_output/                          # 288 auto-generated workbooks (do not edit)
+├── ── ISU Reference Materials ──
+├── ISU_Comm2705_SOV_IceDance_2025-26.pdf  # ISU Scale of Values — source for GOE factors
+├── ISU_Scoring_Methodology.md / .docx     # Summary of ISU trimmed-mean scoring rules
+├── ISU_TrimmedMean_Research_Memo.docx     # Research memo on trimmed mean mechanics
+├── IceDance_BaseValues_Reference.docx     # Ice Dance base value reference table
 │
-└── archive/                               # Retired scripts, old databases, legacy docs
+└── ── Data ──
+    └── figure_skating_ijs_v4.sqlite       # Primary database (~195 MB) — see note below
 ```
 
 > **Database note:** `figure_skating_ijs_v4.sqlite` (~195 MB) contains all scoring data
-> plus pairwise_impact_results (v1 + v2 methods) and LOJO results.
+> plus `pairwise_impact_results` (271,728 rows, method `isuimpact_residual_v1`) and LOJO results.
 > Due to GitHub file size limits, it is stored via [Git LFS](https://git-lfs.com/)
 > or available as a direct download from [Releases](../../releases).
 
@@ -89,18 +94,6 @@ competitions (January 2022 – February 2026), including the 2022 and 2026 Olymp
 pip install -r requirements.txt
 brew install poppler   # for PDF parsing only (macOS)
 ```
-
-### Launch the Web Dashboard
-
-```bash
-streamlit run streamlit_app.py
-```
-
-The dashboard provides four views:
-1. **Competitions** — browse all 17 competitions and 142 analyzed events
-2. **Event Analysis** — pairwise heatmap, LOJO counterfactual, significance summary
-3. **Judge Profiles** — per-judge scoring patterns across events
-4. **System-Wide Stats** — flag summary across all events
 
 ### Generate an Analysis Workbook
 
