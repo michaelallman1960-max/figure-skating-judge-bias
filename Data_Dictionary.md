@@ -4,7 +4,7 @@
 **Database:** `figure_skating_ijs_v4.sqlite`
 **Prepared:** February 2026
 **Version:** 2.0
-**Last verified against:** `figure_skating_ijs_v4.sqlite` — 2026-02-26
+**Last verified against:** `figure_skating_ijs_v4.sqlite` — 2026-02-27
 
 ---
 
@@ -285,16 +285,16 @@ Per-judge, per-event summary of LOJO results.
 | `cf_margin` | REAL | Counterfactual margin between 1st and 2nd |
 | `pcs_mode` | TEXT | `"recomputed"` (ice dance) or `"held_official"` (singles/pairs) |
 
-### 4.3 `pairwise_impact_results` — 271,728 rows
+### 4.3 `pairwise_impact_results` — 543,456 rows (271,728 per method)
 
-Core ISU-impact results: pairwise bias tests for every (judge, entry_a, entry_b) combination in every analyzed event. The ISU-impact method applies a style-adjusted quantile permutation null with M = 10,000 permutations, seed = 20260223, global CDF scope, and BH-FDR correction applied within each event.
+Core ISU-impact results: pairwise bias tests for every (judge, entry_a, entry_b) combination in every analyzed event. The table contains results for two method versions; the current published method (`isuimpact_residual_v1`) applies a residual-label permutation null with M = 10,000 permutations, seed = 20260223, and BH-FDR correction applied within each event. The retired method (`isuimpact_quantile_v1`) is retained for reference only.
 
-**Computed by:** `calculate_isuimpact_v1.py`
+**Computed by:** `calculate_isuimpact_v2.py` (current, method: `isuimpact_residual_v1`); retired v1 rows produced by `calculate_isuimpact_v1.py`
 
 | Column | Type | Description |
 |--------|------|-------------|
 | `result_id` | INTEGER PK | Surrogate key |
-| `method_version` | TEXT NOT NULL | `"isuimpact_quantile_v1"` |
+| `method_version` | TEXT NOT NULL | `"isuimpact_residual_v1"` (current published) or `"isuimpact_quantile_v1"` (retired) |
 | `event_id` | INTEGER NOT NULL | FK → `events` |
 | `judge_id` | INTEGER NOT NULL | FK → `judges` |
 | `judge_position` | TEXT NOT NULL | `"J1"`–`"J9"` |
@@ -318,18 +318,18 @@ Core ISU-impact results: pairwise bias tests for every (judge, entry_a, entry_b)
 
 **Significance:** A result is flagged as significant at q ≤ 0.05 (BH-FDR). The outcome-determinative criterion additionally requires `bias_points > event_margin` (directional).
 
-**Coverage:** 271,728 rows = 9 judges × C(N, 2) entry pairs × 142 analyzed events.
+**Coverage:** 271,728 rows per method (543,456 total) = 9 judges × C(N, 2) entry pairs × 142 analyzed events. Filter on `method_version = 'isuimpact_residual_v1'` for published results.
 
-### 4.4 `judge_team_impacts` — 24,174 rows
+### 4.4 `judge_team_impacts` — 48,348 rows (24,174 per method)
 
 Per-judge, per-entry aggregated ISU-impact scores: the net bias points each judge contributed toward or against each entry across all pairwise comparisons involving that entry.
 
-**Computed by:** `calculate_isuimpact_v1.py`
+**Computed by:** `calculate_isuimpact_v2.py` (current, method: `isuimpact_residual_v1`); retired v1 rows produced by `calculate_isuimpact_v1.py`
 
 | Column | Type | Description |
 |--------|------|-------------|
 | `impact_id` | INTEGER PK | Surrogate key |
-| `method_version` | TEXT NOT NULL | `"isuimpact_quantile_v1"` |
+| `method_version` | TEXT NOT NULL | `"isuimpact_residual_v1"` (current published) or `"isuimpact_quantile_v1"` (retired) |
 | `event_id` | INTEGER NOT NULL | FK → `events` |
 | `judge_id` | INTEGER NOT NULL | FK → `judges` |
 | `judge_position` | TEXT NOT NULL | `"J1"`–`"J9"` |
@@ -404,11 +404,12 @@ The ISU-impact results in `pairwise_impact_results` and `judge_team_impacts` wer
 
 | Parameter | Value |
 |-----------|-------|
-| Method version | `isuimpact_quantile_v1` |
+| Method version | `isuimpact_residual_v1` |
 | Permutations (M) | 10,000 |
 | RNG seed | 20260223 |
-| CDF scope | Global (CDFs built from all 142 analyzed events) |
+| Null distribution | Residual-label permutation (Emerson et al. 2009) |
 | Multiple testing correction | Benjamini-Hochberg FDR, applied within each event |
 | Significance threshold | q ≤ 0.05 |
-| Events analyzed | 142 of 144 (events 148, 149 excluded) |
-| Computed | 2026-02-24 |
+| Events analyzed | 142 of 144 (events 148, 149 excluded — 7-judge panels) |
+| Computed by | `calculate_isuimpact_v2.py` |
+| Computed | 2026-02-27 |
