@@ -93,6 +93,27 @@ different valid context. Example: checking absence of "preserve judge style" fai
 "null models that preserve judge style" phrasing in the Abstract/Introduction needed changing.
 **Make absence checks specific enough to target only the problematic context.**
 
+### ChatGPT often reviews a stale version of the document
+When using ChatGPT for iterative paper review, **always paste the full extracted paper text**
+into the prompt rather than uploading the document file. File uploads may be cached or
+re-used from a prior round, causing ChatGPT to flag issues that have already been fixed.
+
+**Detection**: Run a literal string search on the current docx for every "stale string" ChatGPT
+flags. If all are absent, ChatGPT is reviewing an old version. Confirm with one grep before
+writing any fix script.
+
+**Workflow**: Extract current docx to `/tmp/paper_full.txt` → paste into ChatGPT prompt.
+Analyze each suggestion against the current text before accepting.
+
+### Verify each ChatGPT suggestion against the actual current document
+ChatGPT suggestions fall into three categories:
+1. **Already fixed** — stale version; do nothing
+2. **Real fix** — apply it
+3. **Wrong / pushback warranted** — explain why and don't change
+
+Always categorize before writing any fix script. In sessions where ChatGPT reviewed stale
+versions, >50% of "critical" items were false alarms.
+
 ### Add `*.docx.bak_*` to `.gitignore` before writing any fix scripts
 Fix scripts create `.bak_*` backups before modifying the document. Without a gitignore rule,
 these accumulate as untracked files and clutter file pickers and `git status`. Add the rule
