@@ -86,22 +86,58 @@ competitions (January 2022 – February 2026), including the 2022 and 2026 Olymp
 
 ---
 
-## Quick Start
+## Replicating the Analysis
 
-### Requirements
+The full analysis can be reproduced in five steps. Steps 1–2 are one-time setup; steps 3–5 reproduce all results in the paper.
+
+### Step 1 — Install dependencies
 
 ```bash
 pip install -r requirements.txt
-brew install poppler   # for PDF parsing only (macOS)
+brew install poppler   # macOS only; required for PDF parsing
 ```
 
-### Generate an Analysis Workbook
+### Step 2 — Obtain the database
+
+The primary database (`figure_skating_ijs_v4.sqlite`, ~195 MB) is available from:
+- **Zenodo:** [https://doi.org/10.5281/zenodo.18782656](https://doi.org/10.5281/zenodo.18782656) *(permanent, citable)*
+- **GitHub Releases:** [Releases page](../../releases) *(direct download)*
+
+Place the file in the repository root directory.
+
+### Step 3 — Verify setup
+
+```bash
+python3 check_spec_params.py
+```
+
+Confirms that the database method version, RNG seed, permutation count, and event count all match the paper. All checks should pass before proceeding.
+
+### Step 4 — Re-run the pairwise permutation test
+
+```bash
+python3 calculate_isuimpact_v2.py
+```
+
+Runs the residual-label permutation test across all 142 events (~17 minutes on M1 MacBook Pro). Populates `pairwise_impact_results` and `judge_team_impacts` in the database. **Method:** `isuimpact_residual_v1` | **Seed:** 20260223 | **M:** 10,000.
+
+### Step 5 — Re-run the LOJO counterfactual
+
+```bash
+python3 calculate_lojo_full.py
+```
+
+Runs the Leave-One-Judge-Out counterfactual across all 144 events (~30 minutes). Populates `lojo_scores` and `lojo_event_summary` in the database.
+
+### Generate per-event workbooks (optional)
 
 ```bash
 python3 build_complete_event_workbook.py --event-id 2          # OWG 2026 Ice Dance FD
 python3 build_complete_event_workbook.py --all-events          # all 142 events
-python3 build_complete_event_workbook.py --all-events --dry-run  # preview
+python3 build_complete_event_workbook.py --all-events --dry-run  # preview without writing
 ```
+
+Produces a 12-tab Excel workbook per event: raw scores, GOE/PCS breakdowns, BiasPoints table, permutation p-values, BH-corrected q-values, and LOJO counterfactual results.
 
 ---
 
@@ -167,19 +203,13 @@ method requires 9). Disciplines: Men's Singles, Women's Singles, Pair Skating, I
 
 ## Reproducibility
 
-```bash
-# Verify database and spec are in sync — run before any submission commit
-python3 check_spec_params.py
+See the **Replicating the Analysis** section above for the full step-by-step procedure.
 
-# Re-run pairwise analysis (~17 minutes on M1 MacBook Pro)
-python3 calculate_isuimpact_v2.py
+The source PDFs are ISU 'Judges Details per Skater' documents, downloaded from the
+[ISU results website](https://www.isu.org/figure-skating/results) and tracked in the
+`sources` database table with SHA-256 hashes and retrieval timestamps.
 
-# Re-run LOJO counterfactual (~30 minutes)
-python3 calculate_lojo_full.py
-```
-
-Source PDFs are ISU 'Judges Details per Skater' documents, downloaded from the
-[ISU results website](https://www.isu.org/figure-skating/results).
+For a detailed independent replication guide, see `reproduction_checklist_isuimpact.docx`.
 
 ---
 
