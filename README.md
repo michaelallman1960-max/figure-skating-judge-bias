@@ -60,6 +60,8 @@ competitions (January 2022 – February 2026), including the 2022 and 2026 Olymp
 │
 ├── ── Documentation ──
 ├── judge_bias_isu_judging_system.docx     # Submission draft — Scientific Reports (Nature Portfolio)
+├── cover_letter_scientific_reports.md / .docx  # Cover letter for Scientific Reports submission
+├── Scientific_Reports_Reviewer_Suggestions_Top5.docx  # Suggested peer reviewers (5 experts with citations)
 ├── engineering_spec_isuimpact_v1.docx     # Developer implementation spec for independent replication
 ├── reproduction_checklist_isuimpact.docx  # Step-by-step replication guide
 ├── OWG2026_IceDance_FD_FAQ.docx           # OWG 2026 Ice Dance FD — journalist FAQ (41 Q&As)
