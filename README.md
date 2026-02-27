@@ -63,7 +63,6 @@ competitions (January 2022 – February 2026), including the 2022 and 2026 Olymp
 ├── engineering_spec_isuimpact_v1.docx     # Developer implementation spec for independent replication
 ├── reproduction_checklist_isuimpact.docx  # Step-by-step replication guide
 ├── OWG2026_IceDance_FD_FAQ.docx           # OWG 2026 Ice Dance FD — journalist FAQ (41 Q&As)
-├── faq_v1.md / .docx                      # General method FAQ
 ├── Data_Dictionary.md / .docx             # All 14 database table schemas and column definitions
 ├── database_summary.md / .docx            # Database overview — table sizes, row counts, relationships
 ├── glossary.md / .docx                    # Term definitions (BiasPoints, LOJO, BH-FDR, etc.)
